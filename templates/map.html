@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<style>
+		#map { width : ;80% ; height : 500px ; border : dotted blue 2px; }
+	</style>
+	<script src="https://code.jquery.com/jquery-2.2.4.js">
+	</script>
+	<script>
+	var map;
+
+	function initMap() {
+		//alert("gmaps API loaded");
+		map = new google.maps.Map(document.getElementById('map'), {
+			center: {lat: -29.8488718, lng: 31.0048382},
+			zoom: 13
+        });
+	}
+
+	function markWiFiHotspots(wifilist) {
+		for(var i in wifilist) {
+			hsinfo = wifilist[i];
+			var lat = hsinfo.lat;
+			var lng = hsinfo.lng;
+			var loc = new google.maps.LatLng(lat,lng);
+			var title = hsinfo.place+" / "+hsinfo.provider;
+			var market = new google.maps.Marker({map: map, position: loc, title: title});
+		}
+	}
+
+	function getWiFiList() {
+		// get the bounds of the map
+		var bounds = map.getBounds();
+		var swcorner = bounds.getSouthWest();
+		var necorner = bounds.getNorthEast();
+		var parmstring = "lat0="+swcorner.lat()+"&lng0="+swcorner.lng()+
+						"&lat1="+necorner.lat()+"&lng1="+necorner.lng();
+
+		$.getJSON("/WiFi?"+parmstring,
+			function(data) {
+				markWiFiHotspots(data)
+			});
+	}
+	</script>
+	<script 
+	src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD1pqHX7tXb0uImEFMfYuQPyufALSl3EKE&callback=initMap" 
+	async defer>
+	</script>
+</head>
+<body>
+	<div id='map'>
+	Map going to go here
+	</div>
+	<a href='javascript:getWiFiList()'>fetch em...</a>
+</body>
+</html>
